@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class BlueprintsAPIController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Consulta exitosa")
     })
     @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.read')")
     public ResponseEntity<ApiResponse<Set<Blueprint>>> getAll() {
         ApiResponse<Set<Blueprint>> body = new ApiResponse<>(200, "execute ok", services.getAllBlueprints());
         return ResponseEntity.ok(body);
@@ -41,6 +43,7 @@ public class BlueprintsAPIController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Autor no encontrado")
     })
     @GetMapping("/{author}")
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.read')")
     public ResponseEntity<ApiResponse<Set<Blueprint>>> byAuthor(@PathVariable String author)
             throws BlueprintNotFoundException {
         ApiResponse<Set<Blueprint>> body = new ApiResponse<>(200, "execute ok", services.getBlueprintsByAuthor(author));
@@ -53,6 +56,7 @@ public class BlueprintsAPIController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Blueprint no encontrado")
     })
     @GetMapping("/{author}/{bpname}")
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.read')")
     public ResponseEntity<ApiResponse<Blueprint>> byAuthorAndName(@PathVariable String author, @PathVariable String bpname)
             throws BlueprintNotFoundException {
         ApiResponse<Blueprint> body = new ApiResponse<>(200, "execute ok", services.getBlueprint(author, bpname));
@@ -66,6 +70,7 @@ public class BlueprintsAPIController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "El blueprint ya existe")
     })
     @PostMapping
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.write')")
     public ResponseEntity<ApiResponse<Void>> add(@Valid @RequestBody NewBlueprintRequest req)
             throws BlueprintPersistenceException {
         Blueprint bp = new Blueprint(req.author(), req.name(), req.points());
@@ -80,6 +85,7 @@ public class BlueprintsAPIController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Blueprint no encontrado")
     })
     @PutMapping("/{author}/{bpname}/points")
+    @PreAuthorize("hasAuthority('SCOPE_blueprints.write')")
     public ResponseEntity<ApiResponse<Void>> addPoint(@PathVariable String author, @PathVariable String bpname,
                                                        @RequestBody Point p)
             throws BlueprintNotFoundException {
