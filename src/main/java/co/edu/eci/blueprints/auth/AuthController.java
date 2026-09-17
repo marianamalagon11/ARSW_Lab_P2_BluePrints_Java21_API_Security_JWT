@@ -2,6 +2,8 @@ package co.edu.eci.blueprints.auth;
 
 import co.edu.eci.blueprints.security.InMemoryUserService;
 import co.edu.eci.blueprints.security.RsaKeyProperties;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,14 @@ public class AuthController {
 
     public record LoginRequest(String username, String password) {}
     public record TokenResponse(String access_token, String token_type, long expires_in) {}
+
+    @Operation(summary = "Iniciar sesión y obtener un JWT",
+               description = "Recibe usuario y contraseña; si son válidos, devuelve un access_token firmado con RS256 " +
+                             "que incluye los scopes blueprints.read y blueprints.write, necesario para acceder a los endpoints protegidos de /api/**.")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login exitoso, token emitido"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Usuario o contraseña incorrectos")
+    })
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
